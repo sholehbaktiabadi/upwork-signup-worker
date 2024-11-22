@@ -11,13 +11,16 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "jsdom": "^25.0.1",
     "mailslurp-client": "^15.20.2",
     "puppeteer": "^23.9.0",
     "puppeteer-core": "^23.9.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2"
   }
