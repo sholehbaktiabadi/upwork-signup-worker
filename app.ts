@@ -2,12 +2,12 @@ import MailSlurp from "mailslurp-client";
 import puppeteer from "puppeteer-extra"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
 import { JSDOM } from "jsdom"
-// import UserAgent from "user-agents"
+import UserAgent from "user-agents"
 import anonymizeUa from "puppeteer-extra-plugin-anonymize-ua"
 
 import XLSX from "xlsx"
 import { User } from "./interface/user";
-import { env } from "./env/env";
+// import { env } from "./env/env";
 
 const workbook = XLSX.readFile('user_candidate.xlsx');
 
@@ -18,19 +18,7 @@ const userCandidate: User[] = XLSX.utils.sheet_to_json(sheet);
 
 puppeteer.use(stealthPlugin())
 
-// const userAgent = new UserAgent({ platform: 'MacIntel', deviceCategory: 'desktop' });
-// const userAgentStr = userAgent.toString();
-// console.log("User Agent => "+ userAgentStr)
-
-const UA = anonymizeUa({
-  customFn: () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
-  stripHeadless: undefined,
-  makeWindows: true
-})
-
-puppeteer.use(UA);
-
-const mailslurp = new MailSlurp({ apiKey: env.mailSlurpApiKey });
+const mailslurp = new MailSlurp({ apiKey: "a93ef00f57c419b5f55ed8aa5502a85123d8ae1580d9bbe95fe4cac98e74268f" });
 const delay = (delayInms: number) => {
   return new Promise(resolve => setTimeout(resolve, delayInms));
 };
@@ -66,6 +54,16 @@ const generateRandomUA = () => {
 
 
 async function bootstrap({ email, firstName, lastName, password, inboxId }: User) {
+  // const userAgent = new UserAgent({ platform: 'MacIntel', deviceCategory: 'desktop' });
+  // const userAgentStr = userAgent.toString();
+  // console.log("User Agent => " + userAgentStr)
+  const UA = anonymizeUa({
+    customFn: () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
+    stripHeadless: undefined,
+    makeWindows: true
+  })
+
+  puppeteer.use(UA);
   // const customUA = generateRandomUA();
   const browser = await puppeteer.launch({ channel: "chrome", headless: false, devtools: false, args: ['--start-fullscreen'] })
   const page = await browser.newPage()
@@ -85,10 +83,10 @@ async function bootstrap({ email, firstName, lastName, password, inboxId }: User
   await page.type("#redesigned-input-email", email, { delay: 50 })
   await delay(3000)
   await page.type("#password-input", password, { delay: 500 })
-  await delay(5000)
+  await delay(3000)
   // await page.click("#country-dropdown > div > div > span")
   await page.click("#checkbox-terms > span.air3-checkbox-fake-input")
-  await delay(5000)
+  await delay(3000)
   await page.click("#button-submit-form")
   await delay(3000)
   const lastEmail = await mailslurp.waitForLatestEmail(inboxId)
