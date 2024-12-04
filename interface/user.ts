@@ -5,4 +5,11 @@ export interface User{
     password: string
     inboxId: string
     country: string
+
+    skill: string
+    exCompany: string
+    desc: string
+    role: string
+    adress: string
+    city: string
 }
