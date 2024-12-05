@@ -1,6 +1,7 @@
 import MailSlurp from "mailslurp-client";
 import puppeteer from "puppeteer-extra"
 import p from "puppeteer"
+import { JSDOM } from "jsdom"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
 import UserAgent from "user-agents"
 import anonymizeUa from "puppeteer-extra-plugin-anonymize-ua"
@@ -26,16 +27,16 @@ const delay = (delayInms: number) => {
   return new Promise(resolve => setTimeout(resolve, delayInms));
 };
 
-// const extractUrl = (html: string): string | null => {
-//   // Parse the HTML content
-//   const dom = new JSDOM(html);
-//   const document = dom.window.document;
+const extractUrl = (html: string): string | null => {
+  // Parse the HTML content
+  const dom = new JSDOM(html);
+  const document = dom.window.document;
 
-//   // Find the link containing specific text or style
-//   const link = document.querySelector('a[href*="/nx/signup/verify-email/token"]');
+  // Find the link containing specific text or style
+  const link = document.querySelector('a[href*="/nx/signup/verify-email/token"]');
 
-//   return link ? link.getAttribute("href") : null;
-// };
+  return link ? link.getAttribute("href") : null;
+};
 
 const generateRandomUA = () => {
   // Random user agents
@@ -54,7 +55,7 @@ const generateRandomUA = () => {
 
 
 async function bootstrap() {
-  for await (const { email, firstName, lastName, password, inboxId, country, skill, exCompany, desc, role, adress, city } of userCandidate) {
+  for await (const { email, firstName, lastName, password, inboxId, country, skill, exCompany, desc, role, adress, city, phone } of userCandidate) {
     // const userAgent = new UserAgent({ platform: 'MacIntel', deviceCategory: 'desktop' });
     // const userAgentStr = userAgent.toString();
     // console.log("User Agent => " + userAgentStr)
@@ -71,46 +72,46 @@ async function bootstrap() {
     // await page.setUserAgent(customUA);
     page.setViewport({ width: 1920, height: 1200 })
     await page.setBypassCSP(true)
-    // await page.goto("https://www.upwork.com/nx/signup/?dest=home")
-    // await page.click("#main > div > div > div > div > div > div > div:nth-child(2) > fieldset > div > div:nth-child(2) > div > input")
-    // await delay(1000)
-    // await page.click("#main > div > div > div > div > div > div > div.mt-6x.mt-md-10x > button")
-    // await delay(5000)
-    // await page.setBypassCSP(true)
-    // await page.type("#first-name-input", firstName, { delay: 20 })
-    // await delay(100)
-    // await page.type("#last-name-input", lastName, { delay: 20 })
-    // await delay(100)
-    // await page.type("#redesigned-input-email", email, { delay: 20 })
-    // await delay(2000)
-    // await page.type("#password-input", password, { delay: 80 })
-    // await delay(100)
-    // await page.click("#country-dropdown > div > div > span")
-    // await delay(100)
-    // await page.waitForSelector("#country-dropdown > div.air3-dropdown-menu-container > div > div.air3-dropdown-header-container.has-search > div > div > div > input")
-    // await page.type("#country-dropdown > div.air3-dropdown-menu-container > div > div.air3-dropdown-header-container.has-search > div > div > div > input", country)
-    // await delay(100)
-    // await page.keyboard.down("ArrowDown")
-    // await delay(100)
-    // await page.keyboard.press("Enter")
-    // await delay(1000)
-    // await page.click("#checkbox-terms > span.air3-checkbox-fake-input")
-    // await delay(2000)
-    // await page.click("#button-submit-form")
-    // await delay(5000)
-    // const lastEmail = await mailslurp.waitForLatestEmail(inboxId)
-    // await delay(1000)
-    // console.log(lastEmail.body, "latestEmail")
-    // const url = extractUrl(lastEmail.body as string);
-    // if (url) {
-    //   console.log("Extracted URL:", url);
-    // } else {
-    //   console.log("URL not found!");
-    // }
-    // if (!url) await page.close()
-    // await page.goto(url as string)
-    // await delay(5000)
-    await page.setDefaultTimeout(90000)
+    await page.setDefaultTimeout(15000)
+    await page.goto("https://www.upwork.com/nx/signup/?dest=home")
+    await page.click("#main > div > div > div > div > div > div > div:nth-child(2) > fieldset > div > div:nth-child(2) > div > input")
+    await delay(1000)
+    await page.click("#main > div > div > div > div > div > div > div.mt-6x.mt-md-10x > button")
+    await delay(5000)
+    await page.setBypassCSP(true)
+    await page.type("#first-name-input", firstName, { delay: 20 })
+    await delay(100)
+    await page.type("#last-name-input", lastName, { delay: 20 })
+    await delay(100)
+    await page.type("#redesigned-input-email", email, { delay: 20 })
+    await delay(2000)
+    await page.type("#password-input", password, { delay: 80 })
+    await delay(100)
+    await page.click("#country-dropdown > div > div > span")
+    await delay(100)
+    await page.waitForSelector("#country-dropdown > div.air3-dropdown-menu-container > div > div.air3-dropdown-header-container.has-search > div > div > div > input")
+    await page.type("#country-dropdown > div.air3-dropdown-menu-container > div > div.air3-dropdown-header-container.has-search > div > div > div > input", country)
+    await delay(100)
+    await page.keyboard.down("ArrowDown")
+    await delay(100)
+    await page.keyboard.press("Enter")
+    await delay(1000)
+    await page.click("#checkbox-terms > span.air3-checkbox-fake-input")
+    await delay(2000)
+    await page.click("#button-submit-form")
+    await delay(5000)
+    const lastEmail = await mailslurp.waitForLatestEmail(inboxId)
+    await delay(2000)
+    console.log(lastEmail.body, "latestEmail")
+    const url = extractUrl(lastEmail.body as string);
+    if (url) {
+      console.log("Extracted URL:", url);
+    } else {
+      console.log("URL not found!");
+    }
+    if (!url) await page.close()
+    await page.goto(url as string)
+    await delay(5000)
     await page.goto("https://www.upwork.com/ab/account-security/login")
     // login section
     await page.waitForSelector("#login_username")
@@ -124,10 +125,11 @@ async function bootstrap() {
     await page.type("#login_password", password)
     await delay(100)
     await page.click("#login_control_continue")
-    await delay(5000)
+    await delay(4000)
 
     const pageUrl = page.url()
     if(pageUrl != "https://www.upwork.com/nx/create-profile/welcome") await page.goto("https://www.upwork.com/nx/create-profile/welcome")
+
     // get started section
     await delay(5000)
     await page.waitForSelector("#main > div > div > div.span-md-10.span-lg-6 > div > div.d-flex.mr-md-7.align-items-center > button > span")
@@ -137,13 +139,13 @@ async function bootstrap() {
     // quick section 1/3
     await page.waitForSelector("#step-2 > div > div.mt-6 > div > div > div > div:nth-child(3) > div > input")
     await page.click("#step-2 > div > div.mt-6 > div > div > div > div:nth-child(3) > div > input")
-    await delay(100)
+    await delay(1000)
     await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button.air3-btn.air3-btn-primary")
     await delay(1000)
     // quick section 2/3
     await page.waitForSelector("#step-6 > div > div.mt-6 > div > div > div > div:nth-child(3) > div > input")
     await page.click("#step-6 > div > div.mt-6 > div > div > div > div:nth-child(3) > div > input")
-    await delay(100)
+    await delay(1000)
     await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button.air3-btn.air3-btn-primary")
     await delay(2000)
     // quick section 3/3
@@ -178,17 +180,19 @@ async function bootstrap() {
         checkBucket.push(isChecked)
     }
     isChecked = checkBucket.includes(true)
+    const specializeNumber = Math.floor(Math.random() * 3) + 1;
+    const expertizeNumber = Math.floor(Math.random() * 2) + 1;
     if(!isChecked){
-      await page.click("div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.left.d-flex.flex-column > nav > ul > li:nth-child(11) > a")
+      await page.click(`div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.left.d-flex.flex-column > nav > ul > li:nth-child(${specializeNumber}) > a`)
       await delay(100)
-      await page.click("div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.specialties > fieldset > label:nth-child(1) > span")
-      const isOption2Exist = await page.$("div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.has-error.specialties > fieldset > label:nth-child(2) > span")
-      if(isOption2Exist) await page.click("div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.has-error.specialties > fieldset > label:nth-child(2) > span")
+      await page.click(`div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.specialties > fieldset > label:nth-child(${expertizeNumber}) > span`)
+      const isOption2Exist = await page.$(`div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.has-error.specialties > fieldset > label:nth-child(${expertizeNumber}) > span`)
+      if(isOption2Exist) await page.click(`div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.has-error.specialties > fieldset > label:nth-child(${expertizeNumber}) > span`)
     }else{
-      await page.click("div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.left.d-flex.flex-column > nav > ul > li:nth-child(11) > a")
+      await page.click(`div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.left.d-flex.flex-column > nav > ul > li:nth-child(${specializeNumber}) > a`)
       await delay(200)
-      const isOption2Exist = await page.$("div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.has-error.specialties > fieldset > label:nth-child(2) > span")
-      if(isOption2Exist) await page.click("div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.has-error.specialties > fieldset > label:nth-child(2) > span")
+      const isOption2Exist = await page.$(`div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.has-error.specialties > fieldset > label:nth-child(${expertizeNumber}) > span`)
+      if(isOption2Exist) await page.click(`div.onb-fe-categories-step > div.d-none.d-md-flex.content.mb-5 > div.right.d-flex.flex-column > div.has-error.specialties > fieldset > label:nth-child(${expertizeNumber}) > span`)
     }
     await delay(100)
     await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
@@ -225,31 +229,31 @@ async function bootstrap() {
     await locationField5_10.type("Remote", { delay: 200 });
     await delay(1000)
     const span5_10 = await page.waitForSelector('span[data-v-920a6dda=""]');
-    await delay(500)
+    await delay(1000)
     await span5_10.click();
-    await delay(500)
+    await delay(1000)
     const yearDropdown5_10 = await page.waitForSelector(
       'div[data-test="dropdown-toggle"][aria-labelledby="start-date-year"]'
     );
-    await delay(500)
+    await delay(1500)
     await yearDropdown5_10.click();
-    await delay(500)
+    await delay(1000)
     await page.keyboard.down("ArrowDown")
-    await delay(100)
+    await delay(1000)
     await page.keyboard.down("ArrowDown")
-    await delay(100)
+    await delay(1000)
     await page.keyboard.press("Enter")
     await delay(1000)
     const monthDropdown5_10 = await page.waitForSelector(
       'div[data-test="dropdown-toggle"][aria-labelledby="start-date-month"]'
     );
-    await delay(500)
+    await delay(1000)
     await monthDropdown5_10.click();
-    await delay(500)
+    await delay(1000)
     await page.keyboard.down("ArrowDown")
-    await delay(100)
+    await delay(1000)
     await page.keyboard.down("ArrowDown")
-    await delay(100)
+    await delay(1000)
     await page.keyboard.press("Enter")
     await delay(1000)
     const saveButton5_10 = await page.waitForSelector(
@@ -266,12 +270,12 @@ async function bootstrap() {
     const schoolName6_10 = await page.waitForSelector('input[placeholder="Ex: Northwestern University"]');
     await schoolName6_10.focus()
     await delay(1000)
-    await schoolName6_10.type("Politeknik Negeri Madiun", { delay: 200 });
+    await schoolName6_10.type("Politeknik Negeri Madiun");
     await delay(1000)
     const degree6_10 = await page.waitForSelector('input[placeholder="Ex: Bachelors"]');
     await degree6_10.focus()
     await delay(1000)
-    await degree6_10.type("Bachelor Of T", { delay: 2000 });
+    await degree6_10.type("Bachelor of T", { delay: 1500 });
     await page.keyboard.down("ArrowDown")
     await delay(100)
     await page.keyboard.press("Enter")
@@ -282,7 +286,7 @@ async function bootstrap() {
     await fieldStudy6_10.type("Teknik Komputer Kontrol", { delay: 50 });
 
     const dropdowns = await page.$$('div[data-test="dropdown-toggle"]');
-
+    await delay(500)
     for (const dropdown of dropdowns) {
         const label = await dropdown.$eval(
             'span.air3-dropdown-toggle-label',
@@ -329,44 +333,143 @@ async function bootstrap() {
     await delay(2000)
 
     // // create profile 7/10
-    // #step-8 > div > div.onb-fe-language-step > div > div.air3-grid-container.fe-eng-row.align-items-center > div:nth-child(2) > div > div.span-12.span-md-9 > div > div > div > div
-    // await page.click("#step-133 > div > div.onb-fe-language-step > div > div.air3-grid-container.fe-eng-row.align-items-center > div:nth-child(2) > div > div.span-12.span-md-9 > div > div > div > div > div > span")
-    // await delay(100)
-    // await page.click("#dropdown-menu > li.is-active.is-focused.air3-menu-item > span")
-    // await delay(50)
-    // await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
-    // await delay(1000)
-    // // create profile 8/10
-    // await page.type("#step-134 > div > div > div:nth-child(1) > div.mt-6 > div > div > div > textarea", desc)
-    // await delay(100)
-    // await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
-    // await delay(1000)
-    // // create profile 9/10
-    // await page.type("#step-135 > div > div.pb-7 > div.has-error > div.air3-grid-container > div.span-md-5.span-8.d-flex.align-end.align-items-center.justify-content-end > div > div > div > div > input", "20")
-    // await delay(100)
-    // await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
-    // await delay(1000)
-    // // create profile 10/10
-    // await page.type("#step-140 > div > div.up-fe-location-step > div > div.span-md-9.span-lg-10 > div:nth-child(1) > div > div > div > div:nth-child(1) > div > input", "2000-12-12")
-    // await delay(100)
-    // await page.click("#step-140 > div > div.up-fe-location-step > div > div.span-md-9.span-lg-10 > div.up-fe-location > div > div.air3-grid-container > div > div > div > div > div > span")
-    // await page.type("#step-140 > div > div.up-fe-location-step > div > div.span-md-9.span-lg-10 > div.up-fe-location > div > div.air3-grid-container > div > div > div > div.air3-dropdown-menu-container > div > div.air3-dropdown-header-container.has-search > div > div > div > input", country)
-    // await page.keyboard.down("ArrowDown")
-    // await delay(100)
-    // await page.keyboard.press("Enter")
-    
-    // await page.type("#typeahead-input-295", adress, { delay: 50 })
+    const myLevelDropdown7_10 = await page.waitForSelector(
+      'div[data-test="dropdown-toggle"][aria-labelledby="dropdown-label-english"]'
+    );
+    await delay(500)
+    await myLevelDropdown7_10.click();
+    await delay(200)
+    await page.keyboard.down("ArrowDown")
+    await delay(200)
+    await page.keyboard.press("Enter")
+    await delay(1000)
+    await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
+    await delay(2000)
 
-    // await page.type("#typeahead-input-272", city, { delay: 50 })
-    // await page.keyboard.down("ArrowDown")
-    // await delay(100)
-    // await page.keyboard.press("Enter")
+    // create profile 8/10
+    const textArea8_10 = await page.waitForSelector('textarea[placeholder="Enter your top skills, experiences, and interests. This is one of the first things clients will see on your profile."]');
+    await delay(500)
+    await textArea8_10.type(desc, { delay: 20 })
+    await delay(500)
+    await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
+    await delay(2000)
+    // create profile 9/10
+    const rate9_10 = await page.waitForSelector('input[placeholder="$0.00"]');
+    await delay(500)
+    await rate9_10.type("10")
+    await delay(500)
+    await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
+    await delay(1000)
 
+    // create profile 10/10
+    await delay(5000)
+    const country10_10 = await page.waitForSelector(
+      'div[data-test="dropdown-toggle"][aria-labelledby="country-label"]'
+    );
+    await delay(1000)
+    country10_10.click()
+    await delay(1000)
+    const countrySearch10_10 = await page.waitForSelector(
+      'input[enterkeyhint="search"][aria-owns="dropdown-menu"][placeholder=""]'
+    );
+    await delay(1000)
+    await countrySearch10_10.focus()
+    await delay(500)
+    await countrySearch10_10.click()
+    await delay(500)
+    await countrySearch10_10.type(country, { delay: 500 })
+    await delay(500)
+    await page.keyboard.down("ArrowDown")
+    await delay(200)
+    await page.keyboard.press("Enter")
+    await delay(1000)
+    const birthDate10_10 = await page.waitForSelector('input[placeholder="yyyy-mm-dd"]');
+    await delay(1000)
+    await birthDate10_10.focus()
+    await delay(100)
+    await birthDate10_10.click()
+    await delay(100)
+    await birthDate10_10.type("2000-12-12", { delay: 500 })
+    await delay(500)
+    await birthDate10_10.click()
+    await delay(500)
+    const address10_10 = await page.waitForSelector(
+      'input[placeholder="Enter street address"]'
+    );
+    await delay(500)
+    await address10_10.type(adress)
+    await delay(500)
+    const city10_10 = await page.waitForSelector('input[placeholder="Enter city"]')
+    await delay(500)
+    await city10_10.focus()
+    await delay(500)
+    await city10_10.type(city, { delay: 1500 })
+    await delay(500)
+    await page.keyboard.down("ArrowDown")
+    await delay(200)
+    await page.keyboard.press("Enter")
+    await delay(1000)
+    const phoneCode10_10 = await page.waitForSelector('div[aria-labelledby="null"]')
+    await delay(500)
+    phoneCode10_10.click()
+    await delay(500)
+    const phoneCodeSearch10_10 = await page.waitForSelector('input[placeholder="Search for country"][type="search"]')
+    await delay(500)
+    await phoneCodeSearch10_10.type(country, { delay: 1500 })
+    await page.keyboard.down("ArrowDown")
+    await delay(200)
+    await page.keyboard.press("Enter")
+
+    await delay(1000)
+    const inputPhoneNumber = await page.waitForSelector('input[placeholder="Enter number"]')
+    await delay(1000)
+    await inputPhoneNumber.focus()
+    await delay(500)
+    await inputPhoneNumber.type(phone.toString(), { delay: 20 })
     
-    // await page.close()
-    // await browser.close()
+    if(country.toLowerCase() == "canada"){
+      await delay(1000)
+      const inputZipCode = await page.waitForSelector('input[placeholder="Enter ZIP/Postal code"]')
+      await delay(1000)
+      await inputZipCode.focus()
+      await delay(500)
+      await inputZipCode.type("M3K", { delay: 20 })
+    }
+
+    await delay(1000)
+    const photoLoader10_10 = await page.waitForSelector('button[type="button"][data-qa="open-loader"]')
+    await delay(1000)
+    await photoLoader10_10.click()
+    await delay(5000)
+        // // condition if has previous image
+        // try {
+        //   const deleteButton = await page.waitForSelector('button[data-test="delete"]', { timeout: 5000 });
+        //   await delay(3000)
+        //   if(deleteButton) deleteButton.click()
+        //   await delay(1000)
+        // } catch (error) {
+        //   console.log("waiting terminated")
+        // }
+        // //
+    const uploadSection = await page.waitForSelector('input[type="file"]')
+    await delay(2000)
+    uploadSection.uploadFile('./monalisa.jpg')
+    await delay(5000)
+    const saveProfile = await page.waitForSelector('button[data-qa="btn-save"]')
+    await delay(2000)
+    await saveProfile.click()
+    await delay(8000)
+    await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
+    await delay(5000)
+    const sumbitProfile = await page.waitForSelector('button[data-qa="submit-profile-top-btn"]')
+    await delay(1000)
+    sumbitProfile.click()
+    await delay(4000)
+    await page.close()
+    await browser.close()
+    console.log(`email: ${firstName} is succedd, wait 10s to queue another account`)
+    await delay(10000)
   }
-  process.exit()
 }
 
 bootstrap()
