@@ -1,16 +1,11 @@
 import MailSlurp from "mailslurp-client";
 import puppeteer from "puppeteer-extra"
-import p from "puppeteer"
 import { JSDOM } from "jsdom"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
-import UserAgent from "user-agents"
 import anonymizeUa from "puppeteer-extra-plugin-anonymize-ua"
-
-// country ==> United State, United Kingdom, Canada, Indonesia, Poland, Ukraine
 
 import XLSX from "xlsx"
 import { User } from "./interface/user";
-// import { env } from "./env/env";
 
 const workbook = XLSX.readFile('user_candidate.xlsx');
 
@@ -20,9 +15,7 @@ const sheet = workbook.Sheets[sheetName];
 const userCandidate: User[] = XLSX.utils.sheet_to_json(sheet);
 
 puppeteer.use(stealthPlugin())
-// main => a93ef00f57c419b5f55ed8aa5502a85123d8ae1580d9bbe95fe4cac98e74268f
-// laramail => 8e52d4bd2f8838f7842c5ceecfd09b1a9e45e60a8c2b1be509c84725e89cb819 
-const mailslurp = new MailSlurp({ apiKey: "8e52d4bd2f8838f7842c5ceecfd09b1a9e45e60a8c2b1be509c84725e89cb819" });
+const mailslurp = new MailSlurp({ apiKey: "your-api-key-xxxxxxxxxxxxxxxxxxxxxxxx" });
 const delay = (delayInms: number) => {
   return new Promise(resolve => setTimeout(resolve, delayInms));
 };
@@ -55,10 +48,7 @@ const generateRandomUA = () => {
 
 
 async function bootstrap() {
-  for await (const { email, firstName, lastName, password, inboxId, country, skill, exCompany, desc, role, adress, city, phone } of userCandidate) {
-    // const userAgent = new UserAgent({ platform: 'MacIntel', deviceCategory: 'desktop' });
-    // const userAgentStr = userAgent.toString();
-    // console.log("User Agent => " + userAgentStr)
+  for await (const { email, firstName, lastName, password, inboxId, country, skill, exCompany, desc, adress, city, phone } of userCandidate) {
     const UA = anonymizeUa({
       customFn: () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
       stripHeadless: undefined,
@@ -66,10 +56,8 @@ async function bootstrap() {
     })
 
     puppeteer.use(UA);
-    // const customUA = generateRandomUA();
     const browser = await puppeteer.launch({ channel: "chrome", headless: false, devtools: false, args: ['--start-fullscreen'] })
     const page = await browser.newPage()
-    // await page.setUserAgent(customUA);
     page.setViewport({ width: 1920, height: 1200 })
     await page.setBypassCSP(true)
     await page.setDefaultTimeout(15000)
@@ -102,7 +90,6 @@ async function bootstrap() {
     await delay(5000)
     const lastEmail = await mailslurp.waitForLatestEmail(inboxId)
     await delay(2000)
-    console.log(lastEmail.body, "latestEmail")
     const url = extractUrl(lastEmail.body as string);
     if (url) {
       console.log("Extracted URL:", url);
@@ -197,8 +184,7 @@ async function bootstrap() {
     await delay(100)
     await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
     await delay(2000)
-    // create profile 3/10
-    // const yourSkill = await page.waitForSelector('::-p-xpath(//html/body/div[3]/div/div/main/div/div/div/div/div[1]/div[2]/div/div[3]/div/div[2]/div[1]/div/div[1]/div[1]/div/div[1]/div/span/div/div[1]/div/ol[1]/li/div/div/div/span/div[1]/div/div/div/input)')
+    // create profile 3/10    
     await delay(400)
     await page.click("div.air3-grid-container > div.span-md-10.span-lg-7.span-xl-8.mr-md-7 > div > div.suggested-skills-container > div > div > div:nth-child(1)")
     await delay(100)
@@ -329,7 +315,6 @@ async function bootstrap() {
     saveButton6_10.click()
     await delay(2000)
     await page.click("#main > div > div > div > div > div.air3-wizard-footer > div.air3-wizard-btns-container.air3-wizard-btns > span > button")
-    // <div data-ev-label="dropdown_toggle" data-test="dropdown-toggle" class="air3-dropdown-toggle is-selected" role="combobox" aria-expanded="false" tabindex="0" aria-controls="dropdown-menu" aria-labelledby="dates-attended-label"><div class="air3-dropdown-toggle-title"><!----><span class="air3-dropdown-toggle-label ellipsis">From</span><div class="air3-icon md air3-dropdown-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true" viewBox="0 0 24 24" role="img"><path vector-effect="non-scaling-stroke" stroke="var(--icon-color, #001e00)" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.5" d="M18 10l-6 5-6-5"></path></svg></div></div></div>
     await delay(2000)
 
     // // create profile 7/10
@@ -441,16 +426,16 @@ async function bootstrap() {
     await delay(1000)
     await photoLoader10_10.click()
     await delay(5000)
-        // // condition if has previous image
-        // try {
-        //   const deleteButton = await page.waitForSelector('button[data-test="delete"]', { timeout: 5000 });
-        //   await delay(3000)
-        //   if(deleteButton) deleteButton.click()
-        //   await delay(1000)
-        // } catch (error) {
-        //   console.log("waiting terminated")
-        // }
-        // //
+    // // condition if has previous image
+    // try {
+    //   const deleteButton = await page.waitForSelector('button[data-test="delete"]', { timeout: 5000 });
+    //   await delay(3000)
+    //   if(deleteButton) deleteButton.click()
+    //   await delay(1000)
+    // } catch (error) {
+    //   console.log("waiting terminated")
+    // }
+    // //
     const uploadSection = await page.waitForSelector('input[type="file"]')
     await delay(2000)
     uploadSection.uploadFile('./monalisa.jpg')
